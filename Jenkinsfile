@@ -58,18 +58,32 @@ pipeline{
 
         stage("Deploy to AWS ec2"){
             steps{
-                sshagent(credentials: ['aws-credentials']){
+                sshagent(credentials: ['ec2-ssh-key']){
                     sh '''
-                    ssh -i "aghokey.pem" ec2-user@ec2-3-94-80-117.compute-1.amazonaws.com
-                    docker pull ${IMAGE_NAME}:latest &&
-                    docker stop nodejs-app || true &&
-                    docker rm nodejs-app || true &&
+                    mkdir -p ~/.ssh
+                    chmod 700 ~/.ssh
+                    ssh-keygen -H "${APP_SERVER}" >> ~/.ssh/known_hosts
 
-                    docker run -d --name nodejs-app --restart unless-stopped -p ${APP_PORT}:3000 ${IMAGE_NAME}:latest
+                    ssh "${APP_USER}@${APP_SERVER}" @
+                    set -e
+                    docker pull '${IMAGE_NAME}:latest'
+                    docker stop '${CONTAINER_NAME}' || true
+                    docker rm '${CONTAINER_NAME}' || true
+
+                    docker run -d --name '${CONTAINER_NAME}' --restart unless-stopped -p '${APP_PORT}:3000' '${IMAGE_NAME}:latest'
                     '''
                 }
             }
         }
+        stage('verify deployment'){
+            steps{
+                sh ''' 
+                sleep 10
+                curl --fail --retry 5 --retry-delay 5 "http://${APP_SERVER}:${APP_PORT}"
+                '''
+            }
+        }
+    
         
 
 }
