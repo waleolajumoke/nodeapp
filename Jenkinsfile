@@ -52,7 +52,7 @@ pipeline{
 
         stage("Deploy to AWS ec2"){
             steps{
-                sshagent(credentials: ['aws-ssh-key']){
+                sshagent(credentials: ['aws-credentials']){
                     sh '''
                     ssh -i "aghokey.pem" ec2-user@ec2-3-94-80-117.compute-1.amazonaws.com
                     docker pull ${IMAGE_NAME}:latest &&
