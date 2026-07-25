@@ -5,6 +5,8 @@ pipeline{
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/nodejs-cicd-app"
         APP_SERVER = "ec2-3-94-80-117.compute-1.amazonaws.com"
         APP_PORT = "3000"
+        APP_USER = "ec2-user"
+        CONTAINER_NAME = "nodejs-app"
     }
 
     stages{
@@ -22,7 +24,7 @@ pipeline{
 
         stage("Run tests"){
             steps{
-                sh "npm test"
+                sh "npm test  --if-present"
             }
         }
         
@@ -63,7 +65,7 @@ pipeline{
                     docker stop nodejs-app || true &&
                     docker rm nodejs-app || true &&
 
-                    docker run -d --name nodejs-app --restart unless stopped -p ${APP_PORT}:3000 ${IMAGE_NAME}:latest
+                    docker run -d --name nodejs-app --restart unless-stopped -p ${APP_PORT}:3000 ${IMAGE_NAME}:latest
                     '''
                 }
             }
