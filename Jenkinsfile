@@ -3,7 +3,7 @@ pipeline{
     environment{
         DOCKERHUB_USERNAME = "tech365"
         IMAGE_NAME = "${DOCKERHUB_USERNAME}/nodejs-cicd-app"
-        APP_SERVER = "3.94.80.117/"
+        APP_SERVER = "ec2-3-94-80-117.compute-1.amazonaws.com"
         APP_PORT = "3000"
     }
 
@@ -28,7 +28,11 @@ pipeline{
         
         stage("Build docker image"){
             steps{
-                sh docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest .
+                sh '''
+                docker build \
+                -t ${IMAGE_NAME}:${BUILD_NUMBER} \
+                -t ${IMAGE_NAME}:latest .
+                '''
             }
         }
         stage("Push to docker hub"){
@@ -43,7 +47,7 @@ pipeline{
                     sh '''
                     echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
                     docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                    docker push $IMAGE_NAME}:latest
+                    docker push ${IMAGE_NAME}:latest
                     docker logout
                     '''
                 }
@@ -64,7 +68,11 @@ pipeline{
                 }
             }
         }
-        post{
+        
+
+}
+
+post{
             success{
                 echo "application deployed successfully"
             }
@@ -75,7 +83,4 @@ pipeline{
                 sh 'docker image prune -f || true'
             }
         }
-
-}
-
 }
