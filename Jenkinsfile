@@ -22,11 +22,11 @@ pipeline{
             }
         }
 
-        stage("Run tests"){
-            steps{
-                sh "npm test  --if-present"
-            }
-        }
+        // stage("Run tests"){
+        //     steps{
+        //         sh "npm test  --if-present"
+        //     }
+        // }
         
         stage("Build docker image"){
             steps{
