@@ -62,15 +62,17 @@ pipeline{
                     sh '''
                     mkdir -p ~/.ssh
                     chmod 700 ~/.ssh
-                    ssh-keygen -H "${APP_SERVER}" >> ~/.ssh/known_hosts
+                    ssh-keyscan -H "${APP_SERVER}" >> ~/.ssh/known_hosts
+                    chmod 600 ~/.ssh/known_hosts
 
-                    ssh "${APP_USER}@${APP_SERVER}" @
+                    ssh "${APP_USER}@${APP_SERVER}" "
                     set -e
                     docker pull '${IMAGE_NAME}:latest'
                     docker stop '${CONTAINER_NAME}' || true
                     docker rm '${CONTAINER_NAME}' || true
 
                     docker run -d --name '${CONTAINER_NAME}' --restart unless-stopped -p '${APP_PORT}:3000' '${IMAGE_NAME}:latest'
+                    "
                     '''
                 }
             }
