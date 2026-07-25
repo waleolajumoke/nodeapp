@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-  res.send("Node.js application deployed automatically with Jenkins!");
+  res.send("welcome to Tech365");
 });
 
 app.get("/health", (req, res) => {
